@@ -5,7 +5,10 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from app.knowledge_base.knowledge_base_manager import KnowledgeBaseManager
 from app.prompts import XHS_CREATOR_PROMPT, XHS_SYSTEM_PROMPT
-from app.config import LLM_MODEL, DASHSCOPE_API_KEY, LLM_TEMPERATURE
+from app.config import (
+    LLM_PROVIDER, MINIMAX_API_KEY, MINIMAX_MODEL, MINIMAX_BASE_URL,
+    DASHSCOPE_API_KEY, LLM_MODEL, LLM_TEMPERATURE
+)
 from app.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -17,20 +20,28 @@ class XHSContentGenerator:
     def __init__(
         self,
         knowledge_base: Optional[KnowledgeBaseManager] = None,
-        model: str = LLM_MODEL,
-        api_key: str = DASHSCOPE_API_KEY,
         temperature: float = LLM_TEMPERATURE
     ):
         self.kb = knowledge_base or KnowledgeBaseManager()
         self.temperature = temperature
 
-        if api_key:
+        # 根据 provider 选择配置
+        if LLM_PROVIDER == "minimax" and MINIMAX_API_KEY:
             self.llm = ChatOpenAI(
-                model=model,
-                api_key=api_key,
+                model=MINIMAX_MODEL,
+                api_key=MINIMAX_API_KEY,
+                base_url=MINIMAX_BASE_URL,
+                temperature=temperature
+            )
+            logger.info(f"使用 MiniMax 模型: {MINIMAX_MODEL}")
+        elif DASHSCOPE_API_KEY:
+            self.llm = ChatOpenAI(
+                model=LLM_MODEL,
+                api_key=DASHSCOPE_API_KEY,
                 base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
                 temperature=temperature
             )
+            logger.info(f"使用通义千问模型: {LLM_MODEL}")
         else:
             logger.warning("未设置 API_KEY，文案生成功能将不可用")
             self.llm = None

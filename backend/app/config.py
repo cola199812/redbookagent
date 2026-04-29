@@ -20,6 +20,12 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 (DATA_DIR / "uploads").mkdir(parents=True, exist_ok=True)
 
 # LLM 配置
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "minimax")  # minimax / dashscope
+MINIMAX_API_KEY = os.getenv("MINIMAX_API_KEY", "")
+MINIMAX_MODEL = os.getenv("MINIMAX_MODEL", "MiniMax-Text-01")
+MINIMAX_BASE_URL = "https://api.minimax.chat/v1"
+
+# 通义千问配置（备用）
 DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
 LLM_MODEL = os.getenv("LLM_MODEL", "qwen-max")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-v3")
